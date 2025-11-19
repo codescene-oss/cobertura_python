@@ -12,7 +12,9 @@ def run_coverage():
     result = subprocess.run([
         sys.executable, "-m", "coverage", "run",
         "--source=./app/donkey",
-        "app/donkey/test_cases/test_main.py"
+        "-m",
+        "pytest",
+        "app/donkey/test_cases/"
     ])
 
     if result.returncode != 0:
@@ -31,7 +33,7 @@ def run_coverage():
     print("\n📊 HTML coverage report generated in 'htmlcov/index.html'")
 
     # Generate Cobertura XML report
-    subprocess.run([sys.executable, "-m", "coverage", "xml", "-o", "coverage.xml"])
+    subprocess.run([sys.executable, "-m", "coverage", "xml", "-o", "coverage-donkey.xml"])
     print("📄 Cobertura XML report generated as 'coverage.xml'")
 
     print("\n✅ Coverage analysis complete!")

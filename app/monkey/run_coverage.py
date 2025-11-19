@@ -12,7 +12,9 @@ def run_coverage():
     result = subprocess.run([
         sys.executable, "-m", "coverage", "run",
         "--source=.",
-        "test_cases/test_main.py"
+        "-m",
+        "pytest",
+        "test_cases/"
     ])
 
     if result.returncode != 0:
