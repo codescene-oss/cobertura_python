@@ -1,0 +1,9 @@
+name: test ciprian
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'app/donkey/**'
+      - 'app/monkey/**'
