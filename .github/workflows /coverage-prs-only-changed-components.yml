@@ -44,11 +44,17 @@ jobs:
         working-directory: ./app/monkey
     steps:
       - uses: actions/checkout@v4
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Instal requirements
+        run: pip install -r ./requirements.txt
       - name: Run tests with coverage
-        run: mvn clean test
+        run: python run_coverage.py
       - uses: actions/upload-artifact@v4
         with:
-          path: calculator-1/target/site/jacoco/jacoco.xml
+          path: app/monkey/coverage.xml
           # since we have multiple components we must use distinct artifact names
           # see also `coverage-files` attribute inside `cs-coverage-check` job below
           name: monkey.cobertura.xml
@@ -62,11 +68,17 @@ jobs:
         working-directory: ./app/donkey
     steps:
       - uses: actions/checkout@v4
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Instal requirements
+        run: pip install -r ./requirements.txt
       - name: Run tests with coverage
-        run: mvn clean test
+        run: python run_coverage.py
       - uses: actions/upload-artifact@v4
         with:
-          path: calculator-2/target/site/jacoco/jacoco.xml
+          path: app/donkey/coverage.xml
           name: donkey.cobertura.xml
 
   cs-coverage-check:
@@ -93,4 +105,4 @@ jobs:
           # Include coverage files from all the artifacts (jobs)
           # NOTE:: if only one component is analyzed then there's only a single coverage/jacoco.xml file
           # If multiple components, then the files are nested: coverage/calculator1.jacoco.xml/jacoco.xml, coverage/calculator1.jacoco.xml/jacoco.xml, etc.
-          coverage-files: "**/coverage/**/cobertura.xml"
+          coverage-files: "**/coverage/**/coverage.xml"
