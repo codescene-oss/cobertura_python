@@ -5,9 +5,8 @@ on:
     branches:
       - master
     paths:
-      - 'calculator-1/src/**'
-      - 'calculator-2/src/**'
-      - 'calculator-3/src/**'
+      - 'app/donkey/**'
+      - 'app/monkey/**'
 
 
 jobs:
@@ -19,9 +18,8 @@ jobs:
     runs-on: ubuntu-24.04
     # Set job outputs to values from filter step
     outputs:
-      calculator1: ${{ steps.filter.outputs.calculator1 }}
-      calculator2: ${{ steps.filter.outputs.calculator2 }}
-      calculator3: ${{ steps.filter.outputs.calculator3 }}
+      monkey: ${{ steps.filter.outputs.monkey }}
+      donkey: ${{ steps.filter.outputs.donkey }}
     # Required permissions for detecting changes inside PRs via GitHub API
     permissions:
       pull-requests: read
@@ -32,20 +30,18 @@ jobs:
         id: filter
         with:
           filters: |
-            calculator1:
-              - 'calculator-1/**'
-            calculator2:
-              - 'calculator-2/**'
-            calculator3:
-              - 'calculator-3/**'
+            monkey:
+              - 'app/monkey/**'
+            donkey:
+              - 'app/donkey/**'
 
-  coverage-calculator1:
+  coverage-monkey:
     needs: changes
-    if: ${{ needs.changes.outputs.calculator1 == 'true' }}
+    if: ${{ needs.changes.outputs.monkey == 'true' }}
     runs-on: ubuntu-24.04
     defaults:
       run:
-        working-directory: ./calculator-1
+        working-directory: ./app/monkey
     steps:
       - uses: actions/checkout@v4
       - name: Run tests with coverage
@@ -55,15 +51,15 @@ jobs:
           path: calculator-1/target/site/jacoco/jacoco.xml
           # since we have multiple components we must use distinct artifact names
           # see also `coverage-files` attribute inside `cs-coverage-check` job below
-          name: calculator1.jacoco.xml
+          name: monkey.cobertura.xml
 
-  coverage-calculator2:
+  coverage-donkey:
     needs: changes
-    if: ${{ needs.changes.outputs.calculator2 == 'true' }}
+    if: ${{ needs.changes.outputs.donkey == 'true' }}
     runs-on: ubuntu-24.04
     defaults:
       run:
-        working-directory: ./calculator-2
+        working-directory: ./app/donkey
     steps:
       - uses: actions/checkout@v4
       - name: Run tests with coverage
@@ -71,28 +67,11 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           path: calculator-2/target/site/jacoco/jacoco.xml
-          name: calculator2.jacoco.xml
-
-  coverage-calculator3:
-    needs: changes
-    if: ${{ needs.changes.outputs.calculator3 == 'true' }}
-    runs-on: ubuntu-24.04
-    defaults:
-      run:
-        working-directory: ./calculator-3
-    steps:
-      - uses: actions/checkout@v4
-      - name: Run tests with coverage
-        run: mvn clean test
-      - uses: actions/upload-artifact@v4
-        with:
-          path: calculator-3/target/site/jacoco/jacoco.xml
-          name: calculator3.jacoco.xml
-
+          name: donkey.cobertura.xml
 
   cs-coverage-check:
     runs-on: ubuntu-24.04
-    needs: [ coverage-calculator1, coverage-calculator2, coverage-calculator3 ]
+    needs: [ coverage-monkey, coverage-donkey ]
     # NOTE: 'always()' is needed here because we want to run this step even if some of its dependencies fail
     if: always()
     steps:
@@ -114,4 +93,4 @@ jobs:
           # Include coverage files from all the artifacts (jobs)
           # NOTE:: if only one component is analyzed then there's only a single coverage/jacoco.xml file
           # If multiple components, then the files are nested: coverage/calculator1.jacoco.xml/jacoco.xml, coverage/calculator1.jacoco.xml/jacoco.xml, etc.
-          coverage-files: "**/coverage/**/jacoco.xml"
+          coverage-files: "**/coverage/**/cobertura.xml"
